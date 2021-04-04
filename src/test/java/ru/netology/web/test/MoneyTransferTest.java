@@ -37,11 +37,11 @@ class MoneyTransferTest {
         new TransferPage().transferAmount(Integer.toString(transferAmount), first.getCardNumber().strip());
 
         int actualFirst = DashboardPage.getCardBalance(first.getId());
-        int expectedFirst = first.getCardBalance();
+        int expectedFirst = first.getCardBalance() - transferAmount;
         assertEquals(expectedFirst, actualFirst);
 
         int actualSecond = DashboardPage.getCardBalance(second.getId());
-        int expectedSecond = second.getCardBalance();
+        int expectedSecond = second.getCardBalance() + transferAmount;
         assertEquals(expectedSecond, actualSecond);
 
     }
@@ -53,11 +53,11 @@ class MoneyTransferTest {
         new TransferPage().transferAmount(Integer.toString(transferAmount), second.getCardNumber().strip());
 
         int actualFirst = DashboardPage.getCardBalance(first.getId());
-        int expectedFirst = first.getCardBalance();
+        int expectedFirst = first.getCardBalance() + transferAmount;
         assertEquals(expectedFirst, actualFirst);
 
         int actualSecond = DashboardPage.getCardBalance(second.getId());
-        int expectedSecond = second.getCardBalance();
+        int expectedSecond = second.getCardBalance() - transferAmount;
         assertEquals(expectedSecond, actualSecond);
     }
 
