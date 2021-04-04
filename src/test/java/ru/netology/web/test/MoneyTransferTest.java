@@ -37,11 +37,11 @@ class MoneyTransferTest {
         new TransferPage().transferAmount(Integer.toString(transferAmount), first.getCardNumber().strip());
 
         int actualFirst = DashboardPage.getCardBalance(first.getId());
-        int expectedFirst = first.getCardBalance() - transferAmount;
+        int expectedFirst = first.getCardBalance();
         assertEquals(expectedFirst, actualFirst);
 
         int actualSecond = DashboardPage.getCardBalance(second.getId());
-        int expectedSecond = second.getCardBalance() + transferAmount;
+        int expectedSecond = second.getCardBalance();
         assertEquals(expectedSecond, actualSecond);
 
     }
@@ -53,11 +53,11 @@ class MoneyTransferTest {
         new TransferPage().transferAmount(Integer.toString(transferAmount), second.getCardNumber().strip());
 
         int actualFirst = DashboardPage.getCardBalance(first.getId());
-        int expectedFirst = first.getCardBalance() + transferAmount;
+        int expectedFirst = first.getCardBalance();
         assertEquals(expectedFirst, actualFirst);
 
         int actualSecond = DashboardPage.getCardBalance(second.getId());
-        int expectedSecond = second.getCardBalance() - transferAmount;
+        int expectedSecond = second.getCardBalance();
         assertEquals(expectedSecond, actualSecond);
     }
 
@@ -77,11 +77,11 @@ class MoneyTransferTest {
         new TransferPage().transferAmount(overDraft, fromCard.getCardNumber().strip());
 
         int actualToCardBalance = DashboardPage.getCardBalance(toCard.getId());
-        int expectedToCardBalance = toCard.getCardBalance() + 10001;
+        int expectedToCardBalance = toCard.getCardBalance();
         assertEquals(expectedToCardBalance, actualToCardBalance);
 
         int actualFromCardBalance = DashboardPage.getCardBalance(fromCard.getId());
-        int expectedFromCardBalance = fromCard.getCardBalance() - 10001;
+        int expectedFromCardBalance = fromCard.getCardBalance();
         assertEquals(expectedFromCardBalance, actualFromCardBalance);
     }
 
