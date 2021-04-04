@@ -1,44 +1,75 @@
 package ru.netology.web.test;
 
 import lombok.val;
-import org.junit.jupiter.api.Test;
-import ru.netology.web.data.DataHelper;
-import ru.netology.web.page.LoginPageV1;
-import ru.netology.web.page.LoginPageV2;
-import ru.netology.web.page.LoginPageV3;
+import org.junit.jupiter.api.*;
+import ru.netology.web.page.*;
+import ru.netology.web.page.TransferPage;
 
 import static com.codeborne.selenide.Selenide.open;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static ru.netology.web.data.DataHelper.*;
+
 
 class MoneyTransferTest {
-    @Test
-    void shouldTransferMoneyBetweenOwnCardsV1() {
-      open("http://localhost:9999");
-      val loginPage = new LoginPageV1();
-//    val loginPage = open("http://localhost:9999", LoginPageV1.class);
-      val authInfo = DataHelper.getAuthInfo();
-      val verificationPage = loginPage.validLogin(authInfo);
-      val verificationCode = DataHelper.getVerificationCodeFor(authInfo);
-      verificationPage.validVerify(verificationCode);
+
+    Cards first = firstCard();
+    Cards second = secondCard();
+    int transferAmount = 5000;
+    int overDraft = 15000;
+
+
+    @BeforeEach
+    void setUp() {
+        open("http://localhost:9999");
+        val login = new LoginPage();
+        login.validLogin(getAuthInfo()).validVerify(getVerificationCodeFor(getAuthInfo()));
+        int balanceFirstCard = DashboardPage.getCardBalance(first.getId());
+        int balanceSecondCard = DashboardPage.getCardBalance(second.getId());
+        resetBalance(balanceFirstCard, balanceSecondCard);
+
     }
 
-  @Test
-  void shouldTransferMoneyBetweenOwnCardsV2() {
-    open("http://localhost:9999");
-    val loginPage = new LoginPageV2();
-//    val loginPage = open("http://localhost:9999", LoginPageV2.class);
-    val authInfo = DataHelper.getAuthInfo();
-    val verificationPage = loginPage.validLogin(authInfo);
-    val verificationCode = DataHelper.getVerificationCodeFor(authInfo);
-    verificationPage.validVerify(verificationCode);
-  }
 
-  @Test
-  void shouldTransferMoneyBetweenOwnCardsV3() {
-    val loginPage = open("http://localhost:9999", LoginPageV3.class);
-    val authInfo = DataHelper.getAuthInfo();
-    val verificationPage = loginPage.validLogin(authInfo);
-    val verificationCode = DataHelper.getVerificationCodeFor(authInfo);
-    verificationPage.validVerify(verificationCode);
-  }
+    @Test
+    void shouldTransferMoneyFromFirstToSecond() {
+
+        new DashboardPage().transfer(second.getId());
+        new TransferPage().transferAmount(Integer.toString(transferAmount), first.getCardNumber().strip());
+        int actualFirst = DashboardPage.getCardBalance(first.getId());
+        int actualSecond = DashboardPage.getCardBalance(second.getId());
+        int expectedFirst = first.getCardBalance() - transferAmount;
+        int expectedSecond = second.getCardBalance() + transferAmount;
+        assertEquals(expectedFirst, actualFirst);
+        assertEquals(expectedSecond, actualSecond);
+
+    }
+
+    @Test
+    void shouldTransferMoneyFromSecondToFirst() {
+
+        new DashboardPage().transfer(first.getId());
+        new TransferPage().transferAmount(Integer.toString(transferAmount), second.getCardNumber().strip());
+        int actualFirst = DashboardPage.getCardBalance(first.getId());
+        int actualSecond = DashboardPage.getCardBalance(second.getId());
+        int expectedFirst = first.getCardBalance() + transferAmount;
+        int expectedSecond = second.getCardBalance() - transferAmount;
+        assertEquals(expectedFirst, actualFirst);
+        assertEquals(expectedSecond, actualSecond);
+    }
+
+    @Test
+    void shouldNotTransferOverDraft() {
+
+        new DashboardPage().transfer(first.getId());
+        new TransferPage().transferAmount(Integer.toString(overDraft), second.getCardNumber().strip());
+        int actualFirst = DashboardPage.getCardBalance(first.getId());
+        int actualSecond = DashboardPage.getCardBalance(second.getId());
+        int expectedFirst = first.getCardBalance();
+        int expectedSecond = second.getCardBalance();
+        assertEquals(expectedFirst, actualFirst);
+        assertEquals(expectedSecond, actualSecond);
+    }
+
+
 }
 
