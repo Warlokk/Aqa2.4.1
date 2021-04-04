@@ -77,11 +77,11 @@ class MoneyTransferTest {
         new TransferPage().transferAmount(overDraft, fromCard.getCardNumber().strip());
 
         int actualToCardBalance = DashboardPage.getCardBalance(toCard.getId());
-        int expectedToCardBalance = toCard.getCardBalance();
+        int expectedToCardBalance = toCard.getCardBalance() + 10001;
         assertEquals(expectedToCardBalance, actualToCardBalance);
 
         int actualFromCardBalance = DashboardPage.getCardBalance(fromCard.getId());
-        int expectedFromCardBalance = fromCard.getCardBalance();
+        int expectedFromCardBalance = fromCard.getCardBalance() - 10001;
         assertEquals(expectedFromCardBalance, actualFromCardBalance);
     }
 
