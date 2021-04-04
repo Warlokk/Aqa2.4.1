@@ -21,11 +21,10 @@ public class TransferPage {
     }
 
 
-
     public void transferAmount(String sum, String from) {
-        amount.sendKeys(CONTROL +"a", DELETE);
+        amount.sendKeys(CONTROL + "a", DELETE);
         amount.setValue(sum);
-        fromCard.sendKeys(CONTROL +"a", DELETE);
+        fromCard.sendKeys(CONTROL + "a", DELETE);
         fromCard.setValue(from);
         submitTransfer.click();
 

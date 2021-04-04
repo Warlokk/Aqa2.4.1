@@ -15,11 +15,11 @@ class MoneyTransferTest {
     Cards first = firstCard();
     Cards second = secondCard();
     int transferAmount = 5000;
-    int overDraft = 15000;
 
 
     @BeforeEach
     void setUp() {
+
         open("http://localhost:9999");
         val login = new LoginPage();
         login.validLogin(getAuthInfo()).validVerify(getVerificationCodeFor(getAuthInfo()));
@@ -35,11 +35,13 @@ class MoneyTransferTest {
 
         new DashboardPage().transfer(second.getId());
         new TransferPage().transferAmount(Integer.toString(transferAmount), first.getCardNumber().strip());
+
         int actualFirst = DashboardPage.getCardBalance(first.getId());
-        int actualSecond = DashboardPage.getCardBalance(second.getId());
         int expectedFirst = first.getCardBalance() - transferAmount;
-        int expectedSecond = second.getCardBalance() + transferAmount;
         assertEquals(expectedFirst, actualFirst);
+
+        int actualSecond = DashboardPage.getCardBalance(second.getId());
+        int expectedSecond = second.getCardBalance() + transferAmount;
         assertEquals(expectedSecond, actualSecond);
 
     }
@@ -49,25 +51,38 @@ class MoneyTransferTest {
 
         new DashboardPage().transfer(first.getId());
         new TransferPage().transferAmount(Integer.toString(transferAmount), second.getCardNumber().strip());
+
         int actualFirst = DashboardPage.getCardBalance(first.getId());
-        int actualSecond = DashboardPage.getCardBalance(second.getId());
         int expectedFirst = first.getCardBalance() + transferAmount;
-        int expectedSecond = second.getCardBalance() - transferAmount;
         assertEquals(expectedFirst, actualFirst);
+
+        int actualSecond = DashboardPage.getCardBalance(second.getId());
+        int expectedSecond = second.getCardBalance() - transferAmount;
         assertEquals(expectedSecond, actualSecond);
+    }
+
+    private String overDraft(int cardBalance) {
+
+        int amount = cardBalance + 1;
+        return Integer.toString(amount);
     }
 
     @Test
     void shouldNotTransferOverDraft() {
 
-        new DashboardPage().transfer(first.getId());
-        new TransferPage().transferAmount(Integer.toString(overDraft), second.getCardNumber().strip());
-        int actualFirst = DashboardPage.getCardBalance(first.getId());
-        int actualSecond = DashboardPage.getCardBalance(second.getId());
-        int expectedFirst = first.getCardBalance();
-        int expectedSecond = second.getCardBalance();
-        assertEquals(expectedFirst, actualFirst);
-        assertEquals(expectedSecond, actualSecond);
+        Cards toCard = first;
+        Cards fromCard = second;
+        new DashboardPage().transfer(toCard.getId());
+        String overDraft = overDraft(fromCard.getCardBalance());
+        new TransferPage().transferAmount(overDraft, fromCard.getCardNumber().strip());
+
+        int actualToCardBalance = DashboardPage.getCardBalance(toCard.getId());
+        int expectedToCardBalance = toCard.getCardBalance();
+        assertEquals(expectedToCardBalance, actualToCardBalance);
+
+        int actualFromCardBalance = DashboardPage.getCardBalance(fromCard.getId());
+        int expectedFromCardBalance = fromCard.getCardBalance();
+        assertEquals(expectedFromCardBalance, actualFromCardBalance);
     }
 
 

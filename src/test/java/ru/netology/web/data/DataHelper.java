@@ -66,11 +66,13 @@ public class DataHelper {
             String differ = Integer.toString(firstCard().getCardBalance() - firstCardBalance);
             DashboardPage.transfer(firstCard().getId());
             new TransferPage().transferAmount(differ, secondCard().getCardNumber().strip());
+
         }
         if (secondCardBalance < secondCard().getCardBalance()) {
             String differ = Integer.toString(secondCard().getCardBalance() - secondCardBalance);
             DashboardPage.transfer(secondCard().getId());
             new TransferPage().transferAmount(differ, firstCard().getCardNumber().strip());
+
         }
     }
 
