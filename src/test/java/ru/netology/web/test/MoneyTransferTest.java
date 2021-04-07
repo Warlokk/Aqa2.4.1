@@ -3,7 +3,6 @@ package ru.netology.web.test;
 import lombok.val;
 import org.junit.jupiter.api.*;
 import ru.netology.web.page.*;
-import ru.netology.web.page.TransferPage;
 
 import static com.codeborne.selenide.Selenide.open;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -11,9 +10,8 @@ import static ru.netology.web.data.DataHelper.*;
 
 
 class MoneyTransferTest {
+    private DashboardPage dashboardPage;
 
-    Cards first = firstCard();
-    Cards second = secondCard();
     int transferAmount = 5000;
 
 
@@ -22,10 +20,10 @@ class MoneyTransferTest {
 
         open("http://localhost:9999");
         val login = new LoginPage();
-        login.validLogin(getAuthInfo()).validVerify(getVerificationCodeFor(getAuthInfo()));
-        int balanceFirstCard = DashboardPage.getCardBalance(first.getId());
-        int balanceSecondCard = DashboardPage.getCardBalance(second.getId());
-        resetBalance(balanceFirstCard, balanceSecondCard);
+        dashboardPage = login.validLogin(getAuthInfo()).validVerify(getVerificationCodeFor(getAuthInfo()));
+        val balanceFirstCard = dashboardPage.getCardBalance(firstCard().getId());
+        val balanceSecondCard = dashboardPage.getCardBalance(secondCard().getId());
+        resetBalance(dashboardPage, balanceFirstCard, balanceSecondCard);
 
     }
 
@@ -33,15 +31,15 @@ class MoneyTransferTest {
     @Test
     void shouldTransferMoneyFromFirstToSecond() {
 
-        new DashboardPage().transfer(second.getId());
-        new TransferPage().transferAmount(Integer.toString(transferAmount), first.getCardNumber().strip());
+        val transferPage = dashboardPage.transfer(secondCard().getId());
+        transferPage.transferAmount(Integer.toString(transferAmount), firstCard().getCardNumber().strip());
 
-        int actualFirst = DashboardPage.getCardBalance(first.getId());
-        int expectedFirst = first.getCardBalance() - transferAmount;
+        val actualFirst = dashboardPage.getCardBalance(firstCard().getId());
+        val expectedFirst = firstCard().getCardBalance() - transferAmount;
         assertEquals(expectedFirst, actualFirst);
 
-        int actualSecond = DashboardPage.getCardBalance(second.getId());
-        int expectedSecond = second.getCardBalance() + transferAmount;
+        val actualSecond = dashboardPage.getCardBalance(secondCard().getId());
+        val expectedSecond = secondCard().getCardBalance() + transferAmount;
         assertEquals(expectedSecond, actualSecond);
 
     }
@@ -49,15 +47,15 @@ class MoneyTransferTest {
     @Test
     void shouldTransferMoneyFromSecondToFirst() {
 
-        new DashboardPage().transfer(first.getId());
-        new TransferPage().transferAmount(Integer.toString(transferAmount), second.getCardNumber().strip());
+        val transferPage = dashboardPage.transfer(firstCard().getId());
+        transferPage.transferAmount(Integer.toString(transferAmount), secondCard().getCardNumber().strip());
 
-        int actualFirst = DashboardPage.getCardBalance(first.getId());
-        int expectedFirst = first.getCardBalance() + transferAmount;
+        val actualFirst = dashboardPage.getCardBalance(firstCard().getId());
+        val expectedFirst = firstCard().getCardBalance() + transferAmount;
         assertEquals(expectedFirst, actualFirst);
 
-        int actualSecond = DashboardPage.getCardBalance(second.getId());
-        int expectedSecond = second.getCardBalance() - transferAmount;
+        val actualSecond = dashboardPage.getCardBalance(secondCard().getId());
+        val expectedSecond = secondCard().getCardBalance() - transferAmount;
         assertEquals(expectedSecond, actualSecond);
     }
 
@@ -70,18 +68,18 @@ class MoneyTransferTest {
     @Test
     void shouldNotTransferOverDraft() {
 
-        Cards toCard = first;
-        Cards fromCard = second;
-        new DashboardPage().transfer(toCard.getId());
+        Cards toCard = firstCard();
+        Cards fromCard = secondCard();
+        val transferPage = dashboardPage.transfer(toCard.getId());
         String overDraft = overDraft(fromCard.getCardBalance());
-        new TransferPage().transferAmount(overDraft, fromCard.getCardNumber().strip());
+        transferPage.transferAmount(overDraft, fromCard.getCardNumber().strip());
 
-        int actualToCardBalance = DashboardPage.getCardBalance(toCard.getId());
-        int expectedToCardBalance = toCard.getCardBalance();
+        val actualToCardBalance = dashboardPage.getCardBalance(toCard.getId());
+        val expectedToCardBalance = toCard.getCardBalance();
         assertEquals(expectedToCardBalance, actualToCardBalance);
 
-        int actualFromCardBalance = DashboardPage.getCardBalance(fromCard.getId());
-        int expectedFromCardBalance = fromCard.getCardBalance();
+        val actualFromCardBalance = dashboardPage.getCardBalance(fromCard.getId());
+        val expectedFromCardBalance = fromCard.getCardBalance();
         assertEquals(expectedFromCardBalance, actualFromCardBalance);
     }
 

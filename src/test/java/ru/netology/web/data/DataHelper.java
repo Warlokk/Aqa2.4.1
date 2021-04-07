@@ -56,7 +56,7 @@ public class DataHelper {
                 10000);
     }
 
-    public static void resetBalance(int firstCardBalance, int secondCardBalance) {
+    public static void resetBalance(DashboardPage dashboardPage, int firstCardBalance, int secondCardBalance) {
 
         if ((firstCardBalance == firstCard().getCardBalance()) && (secondCardBalance == secondCard().getCardBalance())) {
             return;
@@ -64,14 +64,14 @@ public class DataHelper {
 
         if (firstCardBalance < firstCard().getCardBalance()) {
             String differ = Integer.toString(firstCard().getCardBalance() - firstCardBalance);
-            DashboardPage.transfer(firstCard().getId());
-            new TransferPage().transferAmount(differ, secondCard().getCardNumber().strip());
+            val transferPage = dashboardPage.transfer(firstCard().getId());
+            transferPage.transferAmount(differ, secondCard().getCardNumber().strip());
 
         }
         if (secondCardBalance < secondCard().getCardBalance()) {
             String differ = Integer.toString(secondCard().getCardBalance() - secondCardBalance);
-            DashboardPage.transfer(secondCard().getId());
-            new TransferPage().transferAmount(differ, firstCard().getCardNumber().strip());
+            val transferPage = dashboardPage.transfer(secondCard().getId());
+            transferPage.transferAmount(differ, firstCard().getCardNumber().strip());
 
         }
     }
